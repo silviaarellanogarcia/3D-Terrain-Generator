@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+    <script type="importmap-shim">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@v0.151.3/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@v0.151.3/examples/jsm/"
+        }
+      }
+    </script>
+
+    <title>3D Terrain Generator</title>
+</head>
+
+<body>
+    <div class="container py-4">
+        <header class="p-3 bg-dark text-white rounded-3 mb-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+          <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#ffffff" class="bi bi-globe-americas" viewBox="0 0 16 16">
+                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0ZM2.04 4.326c.325 1.329 2.532 2.54 3.717 3.19.48.263.793.434.743.484-.08.08-.162.158-.242.234-.416.396-.787.749-.758 1.266.035.634.618.824 1.214 1.017.577.188 1.168.38 1.286.983.082.417-.075.988-.22 1.52-.215.782-.406 1.48.22 1.48 1.5-.5 3.798-3.186 4-5 .138-1.243-2-2-3.5-2.5-.478-.16-.755.081-.99.284-.172.15-.322.279-.51.216-.445-.148-2.5-2-1.5-2.5.78-.39.952-.171 1.227.182.078.099.163.208.273.318.609.304.662-.132.723-.633.039-.322.081-.671.277-.867.434-.434 1.265-.791 2.028-1.12.712-.306 1.365-.587 1.579-.88A7 7 0 1 1 2.04 4.327Z"/>
+              </svg>
+              <style>
+                  svg {
+                      padding-right: 10px;
+                  }
+              </style>
+              <span class="fs-4 text-white">3D Terrain Generator</span>
+          </a>
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+            <li><a href="https://github.com/silviaarellanogarcia/3D-Terrain-Generator" class="nav-link px-10 fs-6 text-white mt-1">GitHub</a></li>
+            <li><a href="#" class="nav-link px-10 fs-6 text-white mt-1">Paper</a></li>
+            <li><a href="#" class="nav-link px-10 fs-6 text-white mt-1">About</a></li>
+        </ul>
+        </div>
+        </header>
+
+        <div class="p-5 mb-4 bg-light rounded-3 row">
+            <div class="container-fluid py-5 col-12 col-lg-8">
+                <h1 class="display-5 fw-bold">Design your 3D terrain!</h1>
+                <p class="fs-4">Generate your heightmap, customize its texture, and obtain an .obj file ready to
+                    be inserted into a simulator</p>
+                </p>
+            </div>
+            <div class="col-lg-4 col-12" id="3d_container">
+                <script type="module-shim">
+                    import * as THREE from 'three';
+                    import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+                    import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+                    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+                    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+                    function render_object(id_container, url) {
+
+                        let container_3d = document.getElementById(id_container);
+
+                        let style = window.getComputedStyle(container_3d, null);
+
+                        let height = container_3d.clientHeight - (parseFloat(style.paddingTop) + parseFloat(style.paddingBottom))
+                        let width = container_3d.clientWidth - (parseFloat(style.paddingLeft) + parseFloat(style.paddingRight))
+
+                        let scene = new THREE.Scene();
+                        let camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+                        camera.position.set(1.25,1.25,1.25)
+
+                        let renderer = new THREE.WebGLRenderer({ alpha: true });
+                        renderer.setSize(width, height);
+                        container_3d.appendChild(renderer.domElement);
+
+                        let light1 = new THREE.DirectionalLight(new THREE.Color('rgb(255, 255, 255)'), 1.0);
+                        light1.position.set(1.25,1.25,1.25);
+                        scene.add(light1);
+
+                        let light3 = new THREE.DirectionalLight(new THREE.Color('rgb(255, 255, 255)'), 0.75);
+                        light1.position.set(-1.25,1.25,-1.25);
+                        scene.add(light3);
+
+                        let light2  = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
+                        scene.add(light2);
+
+                        let controls = new OrbitControls( camera, renderer.domElement );
+                        controls.enableDamping = true
+                        controls.dampingFactor=0.25
+                        controls.enableZoom = true
+
+                        let loader = new GLTFLoader();
+                        loader.load(url, function(gltf) {
+                            let object = gltf.scene
+                            object.position.set(0, 0, 0)
+                            object.lookAt(0,0,0)
+                            scene.add(object);
+                            camera.lookAt(0,-0.25,0)
+                            controls.update();
+                        });
+
+
+                        function render() {
+                            requestAnimationFrame(render);
+                            controls.update();
+                            renderer.render(scene, camera);
+                        }
+                        render();
+
+                    }
+                    render_object("3d_container", 'static/hmap512_project.gltf')
+                    window.render_object = render_object
+
+                </script>
+
+            </div>
+        </div>
+
+        <div class="row align-items-md-stretch mb-4">
+            <div class="col-md-6">
+                <div class="h-100 p-5 text-white bg-dark rounded-3">
+                    <h2>Step 1: Generate a heightmap</h2>
+                    <p>The heightmap will be the key to give shape to your terrain. Make sure to choose one that
+                        satisfies your needs! Once you have decided, the resolution of the heightmap will be improved
+                        to achieve a better result. This can take some more seconds.</p>
+
+                    {% if hmap_b64 %}
+                        <div class="button-container">
+                            <form method="POST" action="/save_heightmap">
+                                <input type="hidden" name="hmap_b64" value="{{ hmap_b64 }}">
+                                 <a href="/generate_heightmap" class="btn btn-primary mr-8 mt-4">Regenerate heightmap</a>
+                                <button type="submit" class="btn btn-primary mt-4">Choose this one!</button>
+                            </form>
+                        </div>
+                    {% else %}
+                         <a href="/generate_heightmap" class="btn btn-primary mt-4">Generate heightmap</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="h-100 p-5 bg-light border rounded-3">
+                    {% if hmap_b64 %}
+                        <img src="data:image/png;base64,{{ hmap_b64 }}" id="heightmap_img" style="max-width: 100%;"/>
+                    {% endif %}
+                    {% if sr_b64 %}
+                        <img src="data:image/png;base64,{{ sr_b64 }}" style="max-width: 100%;"/>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row align-items-md-stretch mb-4">
+            <div class="col-md-6">
+                <div class="h-100 p-5 text-white bg-dark rounded-3">
+                    <h2>Step 2: Customize the texture</h2>
+                    <p>
+                    Create a texture that fits the topography of your heightmaps, using the materials you like most.
+                        <ul>
+                            <li>First, select the texture you want to apply.</li>
+                            <li>Next, choose in which range of height would you like to apply them, being 0 the lowest possible level of representation, and 100 the highest.</li>
+                            <li>Then, select on which part of the image you would like to apply that texture.</li>
+                            <li>Finally, repeat the process for the rest of textures and apply your changes!</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="h-100 p-5 bg-light border rounded-3">
+
+                    {% if sr_b64 %}
+                        <div id="form_template" style="display:none">
+                            <button type="button" class="btn-close" onclick="remove_form(this)" aria-label="Close" style="display:block; float:right;"></button>
+                            <h2 id="title">Texture </h2>
+
+                            <label for="texture"><h6>Select a texture:</h6></label>
+                            <select name="texture" id="texture" class="btn btn-secondary dropdown-toggle mt-2">
+                                <option value="grass">Grass</option>
+                                <option value="snow">Snow</option>
+                                <option value="mud">Mud</option>
+                                <option value="clay">Clay</option>
+                                <option value="clay and moss">Clay and moss</option>
+                                <option value="flat rock">Flat rock</option>
+                                <option value="big rock">Big rock</option>
+                                <option value="mars">Mars</option>
+                                <option value="rock with snow">Rock with snow</option>
+                            </select>
+                            <br>
+                            <br>
+                            <h6>Choose the height values where you want to apply this texture:</h6>
+                            <label for="lower_threshold">&nbsp;&nbsp;&nbsp;Lower threshold:</label>
+                            <input type="range" min="0" max="100" value="50" class="slider" name="lower_threshold" id="lower_threshold">
+                            <span id="lower_value">50</span>
+
+                            <br>
+                            <label for="upper_threshold">&nbsp;&nbsp;&nbsp;Upper threshold:</label>
+                            <input type="range" min="0" max="100" value="50" class="slider" name="upper_threshold" id="upper_threshold">
+                            <span id="upper_value">50</span>
+                            <br>
+                            <br>
+
+                            <label for="position"><h6>Select where you want to apply it: </h6></label>
+                            <select name="position" id="position" class="btn btn-secondary dropdown-toggle mt-2">
+                                <option value="all">All the image</option>
+                                <option value="up_left">Up-left</option>
+                                <option value="up_right">Up-right</option>
+                                <option value="down_left">Up-left</option>
+                                <option value="down_right">Up-right</option>
+                            </select>
+                            <br>
+                            <button type="button" onclick="add_form()" class="btn btn-success mt-2">Add new texture</button>
+                            <br>
+                            <br>
+                        </div>
+
+                        <form method="POST" action="/define_texture">
+                            <div id="texture_forms"></div>
+
+                            <input type="hidden" name="sr_b64" value="{{ sr_b64 }}">
+                            <button type="submit" class="btn btn-primary mt-4">Apply!</button>
+                        </form>
+
+                        <script>
+                            function slider_number(div) {
+                                let lower_threshold = div.querySelector("#lower_threshold");
+                                let lower_value = div.querySelector("#lower_value");
+                                lower_value.innerHTML = lower_threshold.value;
+
+                                lower_threshold.oninput = function () {
+                                    lower_value.innerHTML = this.value;
+                                }
+
+                                let upper_threshold = div.querySelector("#upper_threshold");
+                                let upper_value = div.querySelector("#upper_value");
+                                upper_value.innerHTML = upper_threshold.value;
+
+                                upper_threshold.oninput = function () {
+                                    upper_value.innerHTML = this.value;
+                                }
+                            }
+
+                            let counter_forms = 0
+                            function add_form(){
+                                counter_forms++
+                                let template = document.getElementById("form_template");
+                                let copy = template.cloneNode(true) // True so that it copies what's inside the div
+                                copy.id = `form_template_${counter_forms}`
+                                copy.style.display = "block"
+                                let title = copy.querySelector("#title");
+                                title.innerText += ' ' + counter_forms
+                                let div_form = document.getElementById("texture_forms")
+                                div_form.appendChild(copy)
+                                slider_number(copy)
+                            }
+
+                            function remove_form(div){
+                                div.parentNode.remove()
+                            }
+
+                            document.addEventListener("DOMContentLoaded", function(event) {
+                                add_form()
+                            });
+
+                        </script>
+                    {% endif %}
+                    {% if texture_b64 %}
+                        <img src="data:image/png;base64,{{ texture_b64 }}" class="mt-4" style="max-width: 100%;"/>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row align-items-md-stretch mb-4">
+            <div class="col-md-6">
+                <div class="h-100 p-5 text-white bg-dark rounded-3">
+                    <h2>Step 3: Render the map and export the files.</h2>
+                    <p>Put together the surface and the texture and get your new terrain. Click the download button and obtain your terrain in files with extensions .obj and .stl </p>
+
+                    {% if texture_b64 %}
+                        <form id="form-render" method="POST" action="/save_render">
+                            <input type="hidden" name="sr_b64" value="{{ sr_b64 }}">
+                            <input type="hidden" name="texture_b64" value="{{ texture_b64 }}">
+
+                            {% for item in result_hmaps %}
+                                <input type="hidden" name="result_hmaps" value="{{ item }}">
+                            {% endfor %}
+
+                            {% for item in result_seps %}
+                                <input type="hidden" name="result_seps" value="{{ item }}">
+                            {% endfor %}
+
+                            <button type="submit" class="btn btn-primary">Download the render files</button>
+                            <button type="button" class="btn btn-primary" onclick="onRenderTerrain()">Render terrain</button>
+                        </form>
+
+                        <script>
+                            function onRenderTerrain() {
+                                let form = document.getElementById('form-render');
+                                const formData = new FormData(form);
+                                formData.append('action', 'render'); // assuming fileInput is a file input element
+
+                                fetch(form.action, {
+                                  method: 'POST',
+                                  body: formData
+                                })
+                                .then(response => response.blob())
+                                .then(blob => {
+                                  // 'blob' contains the binary data of the file
+                                  const reader = new FileReader();
+                                  reader.readAsDataURL(blob);
+                                  reader.onloadend = () => {
+                                    const base64 = reader.result.slice(reader.result.indexOf(',') + 1);
+
+                                    // 'base64' contains the Base64 encoded string of the file
+                                    render_object('render-terrain-generated', 'data:model/gltf-binary;base64,' + base64)
+                                  }
+                                })
+                                .catch(error => console.error(error));
+                            }
+                        </script>
+
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="h-100 p-5 bg-light border rounded-3" id="render-terrain-generated">
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="pt-3 pb-3 ps-4 text-muted border-top">3D Terrain Generator</footer>
+</body>
+</html>
+
+
