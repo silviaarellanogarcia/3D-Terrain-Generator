@@ -9,7 +9,7 @@ The 3D Terrain Generator is only available locally. Therefore, to use it you hav
 ```bash
 $ git clone git@github.com:silviaarellanogarcia/3D-Terrain-Generator.git
 ```
-Then, you have to install the necessary libraries to execute the tool
+Then, you have to install the necessary libraries to execute the tool.
 ```bash
 $ pip install -r requirements.txt 
 ```
@@ -37,6 +37,8 @@ Once you are satisfied with your heightmap, scroll down to the Step 2 and create
 ![step2_readme](https://user-images.githubusercontent.com/63227641/236696106-0e1d9834-6270-4241-ab31-f20ba666153b.jpeg)
 
 Don't forget to customize them! The texture can be chosen between several options, displayed in a drop-down list. Then, you have to choose in which range of textures would you like to apply it. In the example shown below, the mud is applied to the areas of the image that have a grey level between 0% and 20%, represented as a percentage instead of the usual 0-255 range. Lastly, you can decide whether you want to apply the texture to the full image, or just in a specific region of the image. When you are finished adding and customizing textures, click on ```Apply!```.
+
+To obtain a complete texture, without blank spaces, remember to assigning a texture to all range of levels (0 - 100).
 
 Your terrain is ready to go! To check if your terrain meets your expectations, click on ```Render terrain```. Then, press ```Download the render files``` to obtain the .obj and .mtl of your terrain. There will be two types of files downloaded. On the one hand, all the terrain as a whole will be available under the name ```MyTerrain```. On the other hand, if you want to assign different surface parameters to each texture, it would be more practical to use the files named as ```Separate_X```, that contain the mesh and texture of each part.
  
