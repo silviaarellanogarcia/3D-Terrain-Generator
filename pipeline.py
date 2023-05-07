@@ -583,7 +583,7 @@ def render_result(hmap_b64, texture_b64):
     add_modifiers(plane_obj, hmap_b64, bpy)
     file_path = "./test/MyTerrain.gltf"
 
-    # Export the scene to a BytesIO buffer
+    # Export the scene to a BytesIO buffer.
     bpy.ops.export_scene.gltf(
         filepath=file_path,
         use_selection=True,

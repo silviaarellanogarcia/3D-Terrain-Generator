@@ -43,7 +43,6 @@ def define_textures():
     sr_b64 = request.form['sr_b64']
     texture_b64, result_hmaps, result_seps = apply_texture(ranges, sr_b64)
 
-    # NEW: ADDED RESULT_XXXX
     return render_template('index.html', sr_b64=sr_b64, texture_b64=texture_b64, result_hmaps=result_hmaps, result_seps=result_seps)
 
 
