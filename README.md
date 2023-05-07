@@ -25,6 +25,7 @@ And press the link outputted by the terminal
 ```
 ## How to generate your terrain?
 Start by pressing the ```Generate Heightmap button```.
+
 ![step0_readme](https://user-images.githubusercontent.com/63227641/236695950-6e6a8380-3cda-4d5e-865d-d6b854e656d3.jpeg)
 
 Once  the heightmap appears on the right side of the screen, decide if you want to keep it by clicking the ```Choose this one!``` button, or start the process again by pressing ```Regenerate heightmap```.
