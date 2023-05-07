@@ -32,7 +32,7 @@ of textures would you like to apply it. In the example shown below, the mud is a
 20%, represented as a percentage instead of the usual 0-255 range. Lastly, you can decide whether you want to apply the texture to the full image, or just 
 in a specific region of the image. When you are finished adding and customizing textures, click on ```Apply!```.
 
-Your terrain is ready to go! To check if your terrain meets your expectations, click on ```Render terrain```. Then, press ```Download the render files````
+Your terrain is ready to go! To check if your terrain meets your expectations, click on ```Render terrain```. Then, press ```Download the render files```
  to obtain the .obj and .mtl of your terrain. There will be two types of files downloaded. On the one hand, all the terrain as a whole will be available
  under the name ```MyTerrain```. On the other hand, if you want to assign different surface parameters to each texture, it would be more practical to use
  the files named as ```Separate_X```, that contain the mesh and texture of each part.
